@@ -12,12 +12,14 @@ FlyTunnel là app GUI nhỏ gọn để mở Minecraft LAN world ra internet qua
 - Start/stop tunnel bằng child process, phân biệt rõ `Starting`, `Running`, `Stopped`, `Error`
 - Log realtime từ `stdout/stderr` của `frpc`
 - UI nhẹ hơn bản đầu: bỏ blur/shadow nặng, batch log render, giảm save round-trip khi đang gõ
+- Có thêm `flytunnel-cli` để chạy tunnel trực tiếp trong terminal, không cần mở GUI
 - Kèm bộ deploy Docker + ops kit cho VPS trong [deploy/vps](deploy/vps), README riêng tại [deploy/vps/README.md](deploy/vps/README.md), điều khiển qua [Makefile](Makefile), và guide tại [docs/vps/setup.md](docs/vps/setup.md)
 
 ## Cấu trúc
 
 - `src/`: giao diện HTML/CSS/JS
 - `src-tauri/`: backend Rust, process manager, config renderer, binary resolver
+- `src-tauri/src/bin/flytunnel-cli.rs`: binary CLI cho terminal
 - `deploy/vps/`: Docker deploy cho `frps` trên VPS Linux
 - `Makefile`: local/remote ops cho `frps`
 - `docs/vps/`: sample `frps.toml` và hướng dẫn VPS
@@ -77,11 +79,13 @@ Build release:
 ```bash
 npm install
 npm run build
+npm run build:cli
 ```
 
 Artifact chính:
 
 - `src-tauri/target/release/flytunnel.exe`
+- `src-tauri/target/release/flytunnel-cli.exe`
 - `src-tauri/target/release/bundle/nsis/FlyTunnel_0.1.0_x64-setup.exe`
 
 Smoke test local:
@@ -99,9 +103,11 @@ Nên build trực tiếp trên macOS:
 ```bash
 npm install
 npm run build
+npm run build:cli
 ```
 
 App bundle `.app` và các bundle khác sẽ nằm trong `src-tauri/target/release/bundle/`.
+Binary CLI sẽ nằm tại `src-tauri/target/release/flytunnel-cli`.
 
 Nếu muốn build per-arch hoặc universal:
 
@@ -110,6 +116,35 @@ rustup target add aarch64-apple-darwin x86_64-apple-darwin
 ```
 
 Workflow CI trong repo cũng build/test cho cả Windows và macOS, rồi upload artifact unsigned.
+
+## CLI
+
+Chạy CLI ở mode dev:
+
+```bash
+npm run cli -- --help
+```
+
+Build CLI release:
+
+```bash
+npm run build:cli
+```
+
+Các lệnh chính:
+
+```bash
+flytunnel-cli paths
+flytunnel-cli probe
+flytunnel-cli ensure-frpc
+flytunnel-cli config show
+flytunnel-cli config set --server-addr 188.166.248.170 --server-port 7000 --token your-token --local-port 25565 --remote-port 25565
+flytunnel-cli start
+flytunnel-cli start --server-addr 188.166.248.170 --token your-token --local-port 25565 --remote-port 25565
+flytunnel-cli start --server-addr 188.166.248.170 --token your-token --local-port 25565 --remote-port 25565 --save
+```
+
+`start` chạy foreground trong terminal, stream log realtime, và dừng bằng `Ctrl+C`.
 
 ## VPS setup nhanh
 

@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "tauri dev",
     "build": "tauri build",
+    "build:cli": "cargo build --manifest-path src-tauri/Cargo.toml --bin flytunnel-cli --release",
+    "cli": "cargo run --manifest-path src-tauri/Cargo.toml --bin flytunnel-cli --",
     "test:ui": "node --test src/ui-helpers.test.js",
     "test:backend": "cargo test --manifest-path src-tauri/Cargo.toml -- --nocapture",
     "test": "npm run test:ui && npm run test:backend",

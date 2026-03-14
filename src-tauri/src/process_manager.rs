@@ -20,6 +20,16 @@ pub struct TunnelController {
     inner: Arc<Mutex<TunnelRuntime>>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TunnelSnapshot {
+    pub status: TunnelStatusKind,
+    pub has_child: bool,
+    pub stop_requested: bool,
+    pub login_confirmed: bool,
+    pub proxy_confirmed: bool,
+    pub last_error: Option<String>,
+}
+
 struct TunnelRuntime {
     child: Option<Child>,
     config_path: Option<PathBuf>,
@@ -193,6 +203,19 @@ impl TunnelController {
         }
 
         cleanup_runtime_file(config_path);
+    }
+
+    pub fn snapshot(&self) -> Result<TunnelSnapshot, String> {
+        let runtime = self.lock_runtime()?;
+
+        Ok(TunnelSnapshot {
+            status: runtime.status,
+            has_child: runtime.child.is_some(),
+            stop_requested: runtime.stop_requested,
+            login_confirmed: runtime.login_confirmed,
+            proxy_confirmed: runtime.proxy_confirmed,
+            last_error: runtime.last_error.clone(),
+        })
     }
 
     fn spawn_monitor(&self, sink: SharedEventSink) {
