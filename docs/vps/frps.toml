@@ -3,9 +3,10 @@ bindPort = 7000
 auth.method = "token"
 auth.token = "replace-with-a-strong-token"
 
-log.to = "./frps.log"
+allowPorts = [{ start = 25565, end = 25565 }]
+
+log.to = "console"
 log.level = "info"
-log.maxDays = 7
 
 webServer.addr = "127.0.0.1"
 webServer.port = 7500

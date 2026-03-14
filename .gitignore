@@ -25,3 +25,5 @@ src-tauri/target
 src-tauri/gen
 temp-tauri/
 third_party/frp-upstream/
+deploy/vps/.env
+deploy/vps/.ssh.env

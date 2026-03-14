@@ -1,0 +1,24 @@
+services:
+  frps:
+    container_name: flytunnel-frps
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        FRP_VERSION: ${FRP_VERSION:-0.67.0}
+    env_file:
+      - ${FRPS_ENV_FILE:-.env}
+    environment:
+      FRPS_BIND_PORT: ${FRPS_BIND_PORT:-7000}
+      FRPS_TOKEN: ${FRPS_TOKEN}
+      FRPS_DASHBOARD_PORT: ${FRPS_DASHBOARD_PORT:-7500}
+      FRPS_DASHBOARD_USER: ${FRPS_DASHBOARD_USER:-admin}
+      FRPS_DASHBOARD_PASSWORD: ${FRPS_DASHBOARD_PASSWORD}
+    network_mode: host
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS -u ${FRPS_DASHBOARD_USER:-admin}:${FRPS_DASHBOARD_PASSWORD} http://127.0.0.1:${FRPS_DASHBOARD_PORT:-7500}/api/serverinfo >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s

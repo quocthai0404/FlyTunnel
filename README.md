@@ -12,12 +12,14 @@ FlyTunnel là app GUI nhỏ gọn để mở Minecraft LAN world ra internet qua
 - Start/stop tunnel bằng child process, phân biệt rõ `Starting`, `Running`, `Stopped`, `Error`
 - Log realtime từ `stdout/stderr` của `frpc`
 - UI nhẹ hơn bản đầu: bỏ blur/shadow nặng, batch log render, giảm save round-trip khi đang gõ
-- Kèm sample `frps.toml` và guide VPS trong [docs/vps/setup.md](/D:/Projects/home/FlyTunnel/docs/vps/setup.md)
+- Kèm bộ deploy Docker + ops kit cho VPS trong [deploy/vps](deploy/vps), README riêng tại [deploy/vps/README.md](deploy/vps/README.md), điều khiển qua [Makefile](Makefile), và guide tại [docs/vps/setup.md](docs/vps/setup.md)
 
 ## Cấu trúc
 
 - `src/`: giao diện HTML/CSS/JS
 - `src-tauri/`: backend Rust, process manager, config renderer, binary resolver
+- `deploy/vps/`: Docker deploy cho `frps` trên VPS Linux
+- `Makefile`: local/remote ops cho `frps`
 - `docs/vps/`: sample `frps.toml` và hướng dẫn VPS
 - `third_party/frp-upstream/`: upstream `frp` clone shallow tại tag `v0.67.0` để tham chiếu local
 
@@ -111,14 +113,44 @@ Workflow CI trong repo cũng build/test cho cả Windows và macOS, rồi upload
 
 ## VPS setup nhanh
 
-Xem file mẫu [docs/vps/frps.toml](/D:/Projects/home/FlyTunnel/docs/vps/frps.toml) và hướng dẫn chi tiết tại [docs/vps/setup.md](/D:/Projects/home/FlyTunnel/docs/vps/setup.md).
+Flow khuyến nghị là Docker trên VPS Linux:
+
+```bash
+make vps-init
+```
+
+`make vps-init` sẽ tạo sẵn:
+
+- `deploy/vps/.env`
+- `deploy/vps/.ssh.env`
+
+Sau khi điền token và thông tin VPS, flow chuẩn sẽ là:
+
+```bash
+make vps-config
+make vps-remote-deploy
+```
+
+Mở firewall `7000/tcp` và `25565/tcp`, sau đó trong app FlyTunnel dùng:
+
+- `Control Port = 7000`
+- `Remote Port = 25565`
+
+Nếu muốn chạy local Docker thay vì remote deploy:
+
+```bash
+make vps-up
+make vps-logs
+```
+
+Xem chi tiết tại [docs/vps/setup.md](docs/vps/setup.md).
 
 ## Embed `frpc` thay vì auto-download
 
 V1 mặc định dùng auto-download. Nếu muốn ship binary sẵn:
 
 1. Đặt `frpc(.exe)` theo target vào thư mục bundle riêng
-2. Thêm `externalBin` trong [src-tauri/tauri.conf.json](/D:/Projects/home/FlyTunnel/src-tauri/tauri.conf.json)
+2. Thêm `externalBin` trong [src-tauri/tauri.conf.json](src-tauri/tauri.conf.json)
 3. Cập nhật `frpc_resolver` để ưu tiên binary bên cạnh app bundle trước khi fallback sang download
 
 Flow resolver đã được tách riêng nên đổi sang bundled binary sau này khá thẳng.

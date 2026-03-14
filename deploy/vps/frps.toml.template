@@ -1,0 +1,14 @@
+bindPort = ${FRPS_BIND_PORT}
+
+auth.method = "token"
+auth.token = "${FRPS_TOKEN}"
+
+allowPorts = [{ start = 25565, end = 25565 }]
+
+log.to = "console"
+log.level = "info"
+
+webServer.addr = "127.0.0.1"
+webServer.port = ${FRPS_DASHBOARD_PORT}
+webServer.user = "${FRPS_DASHBOARD_USER}"
+webServer.password = "${FRPS_DASHBOARD_PASSWORD}"
