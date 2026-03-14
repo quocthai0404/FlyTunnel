@@ -1,0 +1,19 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="flytunnel-wind" x1="16" y1="20" x2="108" y2="106" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8EF0B5" />
+      <stop offset="0.52" stop-color="#2EC870" />
+      <stop offset="1" stop-color="#0F8C49" />
+    </linearGradient>
+    <linearGradient id="flytunnel-sky" x1="30" y1="18" x2="94" y2="98" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E7FFF1" />
+      <stop offset="1" stop-color="#C6F7DA" />
+    </linearGradient>
+  </defs>
+  <path d="M98 19C91.2 19.6 80.5 23.8 70 31.3C60.1 38.4 50.7 48.8 44.5 61.3C39.4 71.7 37.1 82.2 37.5 91C24.8 83.1 17.9 70.7 16.8 58.4C15.2 40.1 26.4 24.7 44.2 21.1C53.7 19.2 61.1 20.9 70.3 23.1C79.8 25.3 88.5 25 98 19Z" fill="url(#flytunnel-wind)"/>
+  <path d="M30.2 42.7C39.9 43.4 49.3 42 58.7 37.6C49.3 48.6 42.9 60.4 39.7 72.2C33.1 67.7 27.5 60.5 24.8 52.9C23.7 49.8 23.4 46.3 30.2 42.7Z" fill="url(#flytunnel-sky)"/>
+  <path d="M72.2 49.5C84.1 40.6 99.4 35.6 111.2 37.6C103.7 47.8 96.6 57.1 88.3 66.5C77.9 78.3 66.7 89.6 54.5 98.8C52.1 89.3 53.6 78.7 59.3 68.2C62.1 63.1 66.4 57.3 72.2 49.5Z" fill="url(#flytunnel-wind)"/>
+  <path d="M64 108C72.8 108 80 100.8 80 92C80 83.2 72.8 76 64 76C55.2 76 48 83.2 48 92C48 100.8 55.2 108 64 108Z" fill="#0F8C49" fill-opacity="0.12"/>
+  <path d="M63.6 101.4C70.8 101.4 76.6 95.6 76.6 88.4C76.6 81.2 70.8 75.4 63.6 75.4C56.4 75.4 50.6 81.2 50.6 88.4C50.6 95.6 56.4 101.4 63.6 101.4Z" fill="url(#flytunnel-wind)"/>
+  <path d="M63.6 81.1L68.7 88.4L63.6 95.7L58.5 88.4L63.6 81.1Z" fill="white"/>
+</svg>

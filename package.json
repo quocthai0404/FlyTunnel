@@ -1,0 +1,17 @@
+{
+  "name": "flytunnel",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "test:ui": "node --test src/ui-helpers.test.js",
+    "test:backend": "cargo test --manifest-path src-tauri/Cargo.toml -- --nocapture",
+    "test": "npm run test:ui && npm run test:backend",
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}
