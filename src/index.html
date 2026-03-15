@@ -9,36 +9,16 @@
   </head>
   <body>
     <main class="app-shell">
-      <header class="panel app-header">
-        <div class="brand-row">
-          <img src="/assets/flytunnel-mark.svg" alt="FlyTunnel mark" class="brand-mark" />
-          <div class="brand-copy">
-            <p class="eyebrow">Minecraft LAN tunnel</p>
-            <h1>FlyTunnel</h1>
-          </div>
-        </div>
-
-        <div class="status-wrap">
-          <div class="status-topline">
-            <span class="status-heading">Tunnel Status</span>
-            <div class="status-pill stopped" id="status-pill">
-              <span class="status-dot"></span>
-              <span id="status-text">Stopped</span>
+      <section class="panel left-column">
+        <header class="compact-header">
+          <div class="brand-row">
+            <img src="/assets/flytunnel-mark.svg" alt="FlyTunnel mark" class="brand-mark" />
+            <div class="brand-copy">
+              <h1>FlyTunnel</h1>
+              <p class="eyebrow">LAN Tunnel Utility</p>
             </div>
           </div>
-          <p class="status-detail" id="status-detail">Ready when you are.</p>
-          <div class="join-preview">
-            <span class="join-label">Join Address</span>
-            <strong id="join-address">your-vps:25565</strong>
-          </div>
-        </div>
-      </header>
-
-      <section class="panel form-panel">
-        <div class="panel-head">
-          <h2>Quick Start</h2>
-          <p>Enter the Minecraft LAN port, then bring the tunnel online.</p>
-        </div>
+        </header>
 
         <form id="tunnel-form" novalidate>
           <input id="frpc-path-override" type="hidden" />
@@ -66,7 +46,7 @@
           <details class="advanced-panel">
             <summary>
               <span class="advanced-title">Advanced</span>
-              <span class="advanced-copy">Control port, remote port, and frpc client path</span>
+              <span class="advanced-copy">Control port, remote port, frpc path</span>
             </summary>
 
             <div class="advanced-body">
@@ -94,14 +74,34 @@
         </form>
       </section>
 
-      <section class="panel log-panel">
-        <div class="panel-head">
-          <h2>Log</h2>
-          <p>Realtime frpc output shows up here while the tunnel is running.</p>
-        </div>
-        <div id="log-box" aria-live="polite">
-          <pre id="log-content"></pre>
-        </div>
+      <section class="panel right-column">
+        <section class="status-card compact-card">
+          <div class="group-label">Status</div>
+          <div class="status-topline">
+            <div class="status-pill stopped" id="status-pill">
+              <span class="status-dot"></span>
+              <span id="status-text">Stopped</span>
+            </div>
+          </div>
+          <p class="status-detail" id="status-detail">Ready when you are.</p>
+        </section>
+
+        <section class="join-card compact-card">
+          <div class="group-label">Join</div>
+          <span class="join-label">Join Address</span>
+          <strong id="join-address">your-vps:25565</strong>
+        </section>
+
+        <section class="log-card">
+          <div class="group-label">Log</div>
+          <div class="panel-head">
+            <h2>Recent Activity</h2>
+            <p>Realtime frpc output.</p>
+          </div>
+          <div id="log-box" aria-live="polite">
+            <pre id="log-content"></pre>
+          </div>
+        </section>
       </section>
     </main>
   </body>

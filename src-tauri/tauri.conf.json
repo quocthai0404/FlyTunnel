@@ -12,10 +12,10 @@
       {
         "label": "main",
         "title": "FlyTunnel",
-        "width": 580,
-        "height": 740,
-        "minWidth": 520,
-        "minHeight": 640,
+        "width": 660,
+        "height": 480,
+        "minWidth": 560,
+        "minHeight": 420,
         "resizable": true
       }
     ],
