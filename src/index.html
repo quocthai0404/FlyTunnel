@@ -9,96 +9,99 @@
   </head>
   <body>
     <main class="app-shell">
-      <section class="hero-card">
-        <div class="hero-copy">
-          <div class="brand-row">
-            <img src="/assets/flytunnel-mark.svg" alt="FlyTunnel mark" class="brand-mark" />
-            <div>
-              <p class="eyebrow">FAST LAN TUNNEL FOR MINECRAFT</p>
-              <h1>FlyTunnel</h1>
-            </div>
+      <header class="panel app-header">
+        <div class="brand-row">
+          <img src="/assets/flytunnel-mark.svg" alt="FlyTunnel mark" class="brand-mark" />
+          <div class="brand-copy">
+            <p class="eyebrow">Minecraft LAN tunnel</p>
+            <h1>FlyTunnel</h1>
           </div>
-          <p class="hero-text">
-            Open your LAN world to the internet through your VPS with a light, chill flow powered by
-            frp.
-          </p>
         </div>
-        <aside class="status-card">
-          <div class="status-heading">Tunnel Status</div>
-          <div class="status-pill stopped" id="status-pill">
-            <span class="status-dot"></span>
-            <span id="status-text">Stopped</span>
+
+        <div class="status-wrap">
+          <div class="status-topline">
+            <span class="status-heading">Tunnel Status</span>
+            <div class="status-pill stopped" id="status-pill">
+              <span class="status-dot"></span>
+              <span id="status-text">Stopped</span>
+            </div>
           </div>
           <p class="status-detail" id="status-detail">Ready when you are.</p>
           <div class="join-preview">
             <span class="join-label">Join Address</span>
             <strong id="join-address">your-vps:25565</strong>
           </div>
-        </aside>
+        </div>
+      </header>
+
+      <section class="panel form-panel">
+        <div class="panel-head">
+          <h2>Quick Start</h2>
+          <p>Enter the Minecraft LAN port, then bring the tunnel online.</p>
+        </div>
+
+        <form id="tunnel-form" novalidate>
+          <input id="frpc-path-override" type="hidden" />
+
+          <label class="field">
+            <span>VPS Host / IP</span>
+            <input id="server-addr" type="text" placeholder="123.45.67.89 or play.example.com" autocomplete="off" />
+          </label>
+
+          <label class="field">
+            <span>Token</span>
+            <input id="token" type="password" placeholder="Your frps auth token" autocomplete="current-password" />
+          </label>
+
+          <label class="field">
+            <span>Local Port</span>
+            <input id="local-port" type="number" min="1" max="65535" value="25565" />
+          </label>
+
+          <div class="action-row">
+            <button type="submit" class="primary-btn" id="start-button">Start Tunnel</button>
+            <button type="button" class="danger-btn" id="stop-button" disabled>Stop Tunnel</button>
+          </div>
+
+          <details class="advanced-panel">
+            <summary>
+              <span class="advanced-title">Advanced</span>
+              <span class="advanced-copy">Control port, remote port, and frpc client path</span>
+            </summary>
+
+            <div class="advanced-body">
+              <div class="field-row">
+                <label class="field">
+                  <span>Control Port</span>
+                  <input id="server-port" type="number" min="1" max="65535" value="7000" />
+                </label>
+                <label class="field">
+                  <span>Remote Port</span>
+                  <input id="remote-port" type="number" min="1" max="65535" value="25565" />
+                </label>
+              </div>
+
+              <div class="binary-card">
+                <div class="binary-copy">
+                  <span class="binary-label">frpc Client</span>
+                  <code id="frpc-path">Auto-download when needed</code>
+                  <p id="binary-note">FlyTunnel will fetch the official binary if it is missing.</p>
+                </div>
+                <button type="button" class="secondary-btn" id="pick-binary">Locate frpc</button>
+              </div>
+            </div>
+          </details>
+        </form>
       </section>
 
-      <section class="panel-grid">
-        <section class="panel form-panel">
-          <div class="panel-head">
-            <h2>Connection Setup</h2>
-            <p>Point FlyTunnel at your VPS and local Minecraft LAN port.</p>
-          </div>
-
-          <form id="tunnel-form" novalidate>
-            <input id="frpc-path-override" type="hidden" />
-
-            <label class="field">
-              <span>VPS Host / IP</span>
-              <input id="server-addr" type="text" placeholder="123.45.67.89 or mc.example.com" autocomplete="off" />
-            </label>
-
-            <div class="field-row">
-              <label class="field">
-                <span>Control Port</span>
-                <input id="server-port" type="number" min="1" max="65535" value="7000" />
-              </label>
-              <label class="field">
-                <span>Remote Port</span>
-                <input id="remote-port" type="number" min="1" max="65535" value="25565" />
-              </label>
-            </div>
-
-            <div class="field-row">
-              <label class="field">
-                <span>Local Port</span>
-                <input id="local-port" type="number" min="1" max="65535" value="25565" />
-              </label>
-              <label class="field">
-                <span>Token</span>
-                <input id="token" type="password" placeholder="Your frps auth token" />
-              </label>
-            </div>
-
-            <div class="binary-card">
-              <div>
-                <span class="binary-label">frpc Client</span>
-                <code id="frpc-path">Auto-download when needed</code>
-                <p id="binary-note">FlyTunnel will fetch the official binary if it is missing.</p>
-              </div>
-              <button type="button" class="secondary-btn" id="pick-binary">Locate frpc</button>
-            </div>
-
-            <div class="action-row">
-              <button type="submit" class="primary-btn" id="start-button">Start Tunnel</button>
-              <button type="button" class="danger-btn" id="stop-button" disabled>Stop Tunnel</button>
-            </div>
-          </form>
-        </section>
-
-        <section class="panel log-panel">
-          <div class="panel-head">
-            <h2>Realtime Log</h2>
-            <p>stdout and stderr from `frpc` show up here while the tunnel is running.</p>
-          </div>
-          <div id="log-box" aria-live="polite">
-            <pre id="log-content"></pre>
-          </div>
-        </section>
+      <section class="panel log-panel">
+        <div class="panel-head">
+          <h2>Log</h2>
+          <p>Realtime frpc output shows up here while the tunnel is running.</p>
+        </div>
+        <div id="log-box" aria-live="polite">
+          <pre id="log-content"></pre>
+        </div>
       </section>
     </main>
   </body>
