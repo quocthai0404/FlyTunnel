@@ -24,6 +24,12 @@ struct AuthConfig {
 #[derive(Serialize)]
 struct TransportConfig {
     protocol: String,
+    #[serde(rename = "dialServerKeepalive")]
+    dial_server_keepalive: u16,
+    #[serde(rename = "tcpMux")]
+    tcp_mux: bool,
+    #[serde(rename = "tcpMuxKeepaliveInterval")]
+    tcp_mux_keepalive_interval: u16,
 }
 
 #[derive(Serialize)]
@@ -51,6 +57,9 @@ pub fn render_config(settings: &TunnelSettings) -> Result<String, String> {
         },
         transport: TransportConfig {
             protocol: "tcp".into(),
+            dial_server_keepalive: 60,
+            tcp_mux: true,
+            tcp_mux_keepalive_interval: 10,
         },
         proxies: vec![ProxyConfig {
             name: "minecraft-lan".into(),
@@ -91,6 +100,9 @@ mod tests {
 
         assert!(rendered.contains("serverAddr = \"mc.example.com\""));
         assert!(rendered.contains("token = \"secret\""));
+        assert!(rendered.contains("dialServerKeepalive = 60"));
+        assert!(rendered.contains("tcpMux = true"));
+        assert!(rendered.contains("tcpMuxKeepaliveInterval = 10"));
         assert!(rendered.contains("localIP = \"127.0.0.1\""));
         assert!(rendered.contains("localPort = 25570"));
         assert!(rendered.contains("remotePort = 25580"));

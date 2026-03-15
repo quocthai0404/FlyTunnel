@@ -3,6 +3,10 @@ bindPort = 7000
 auth.method = "token"
 auth.token = "replace-with-a-strong-token"
 
+transport.tcpMux = true
+transport.tcpMuxKeepaliveInterval = 10
+transport.tcpKeepalive = 60
+
 allowPorts = [{ start = 25565, end = 25565 }]
 
 log.to = "console"

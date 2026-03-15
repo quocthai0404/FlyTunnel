@@ -3,6 +3,10 @@ bindPort = ${FRPS_BIND_PORT}
 auth.method = "token"
 auth.token = "${FRPS_TOKEN}"
 
+transport.tcpMux = true
+transport.tcpMuxKeepaliveInterval = 10
+transport.tcpKeepalive = 60
+
 allowPorts = [{ start = 25565, end = 25565 }]
 
 log.to = "console"
