@@ -140,9 +140,20 @@ flytunnel-cli ensure-frpc
 flytunnel-cli config show
 flytunnel-cli config set --server-addr 188.166.248.170 --server-port 7000 --token your-token --local-port 25565 --remote-port 25565
 flytunnel-cli start
-flytunnel-cli start --server-addr 188.166.248.170 --token your-token --local-port 25565 --remote-port 25565
-flytunnel-cli start --server-addr 188.166.248.170 --token your-token --local-port 25565 --remote-port 25565 --save
+flytunnel-cli start --save
+flytunnel-cli start --non-interactive --server-addr 188.166.248.170 --token your-token --local-port 25565 --remote-port 25565 --save
 ```
+
+`start` giờ mặc định mở một wizard nhỏ trong terminal, hỏi tuần tự:
+
+- VPS host / IP
+- control port
+- token
+- local Minecraft port
+- remote public port
+- `frpc` path override nếu cần
+
+Nhấn `Enter` để giữ giá trị đã lưu sẵn trong ngoặc. Nếu muốn dùng CLI theo kiểu script hóa cũ, thêm `--non-interactive`.
 
 `start` chạy foreground trong terminal, stream log realtime, và dừng bằng `Ctrl+C`.
 

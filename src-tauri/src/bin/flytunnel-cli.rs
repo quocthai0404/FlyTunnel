@@ -10,7 +10,7 @@ use flytunnel_lib::{
     settings,
 };
 use std::{
-    io::{self, Write},
+    io::{self, IsTerminal, Write},
     process,
     sync::{
         atomic::{AtomicBool, Ordering},
@@ -77,6 +77,8 @@ struct StartCommand {
     overrides: SettingsOverrides,
     #[arg(long)]
     save: bool,
+    #[arg(long = "non-interactive")]
+    non_interactive: bool,
 }
 
 #[derive(Args, Debug, Clone, Default)]
@@ -203,7 +205,14 @@ fn run() -> Result<(), String> {
 }
 
 fn run_start(command: StartCommand) -> Result<(), String> {
+    let interactive = should_prompt_for_start(&command);
     let settings = apply_overrides(settings::load_settings()?, &command.overrides, false);
+    let settings = if interactive {
+        prompt_start_settings(&settings)?
+    } else {
+        settings
+    };
+
     settings.validate_for_start()?;
 
     if command.save {
@@ -213,6 +222,8 @@ fn run_start(command: StartCommand) -> Result<(), String> {
             settings::settings_path()?.to_string_lossy()
         );
         print_settings(&saved, false);
+    } else if interactive {
+        println!("Tip: add --save if you want these values remembered next time.");
     }
 
     println!("Server: {}:{}", settings.server_addr, settings.server_port);
@@ -237,6 +248,152 @@ fn run_start(command: StartCommand) -> Result<(), String> {
 
     controller.start(sink.clone(), settings)?;
     wait_for_tunnel(&controller, sink, &console_sink, stop_requested)
+}
+
+fn should_prompt_for_start(command: &StartCommand) -> bool {
+    !command.non_interactive && io::stdin().is_terminal() && io::stdout().is_terminal()
+}
+
+fn prompt_start_settings(settings: &TunnelSettings) -> Result<TunnelSettings, String> {
+    println!("FlyTunnel CLI setup");
+    println!("Press Enter to keep the value shown in brackets.");
+
+    Ok(TunnelSettings {
+        server_addr: prompt_required_text("VPS host / IP", &settings.server_addr)?,
+        server_port: prompt_port("Control port", settings.server_port)?,
+        token: prompt_token(&settings.token)?,
+        local_port: prompt_port("Local Minecraft port", settings.local_port)?,
+        remote_port: prompt_port("Remote public port", settings.remote_port)?,
+        frpc_path_override: prompt_optional_text(
+            "frpc path override",
+            settings.frpc_path_override.as_deref(),
+            "auto",
+        )?,
+    }
+    .sanitized())
+}
+
+fn prompt_required_text(label: &str, current: &str) -> Result<String, String> {
+    loop {
+        let prompt = prompt_with_default(label, current.trim(), None);
+        let input = read_prompt_line(&prompt)?;
+
+        match choose_required_text(&input, current) {
+            Ok(value) => return Ok(value),
+            Err(error) => println!("{error}"),
+        }
+    }
+}
+
+fn prompt_token(current: &str) -> Result<String, String> {
+    loop {
+        let masked = if current.trim().is_empty() {
+            None
+        } else {
+            Some(mask_token(current))
+        };
+        let prompt = prompt_with_default("Token", "", masked.as_deref());
+        let input = read_prompt_line(&prompt)?;
+
+        match choose_required_text(&input, current) {
+            Ok(value) => return Ok(value),
+            Err(_) => println!("Token is required."),
+        }
+    }
+}
+
+fn prompt_port(label: &str, current: u16) -> Result<u16, String> {
+    loop {
+        let prompt = prompt_with_default(label, &current.to_string(), None);
+        let input = read_prompt_line(&prompt)?;
+
+        match choose_port(&input, current, label) {
+            Ok(value) => return Ok(value),
+            Err(error) => println!("{error}"),
+        }
+    }
+}
+
+fn prompt_optional_text(
+    label: &str,
+    current: Option<&str>,
+    empty_label: &str,
+) -> Result<Option<String>, String> {
+    let current = current.map(str::trim).filter(|value| !value.is_empty());
+
+    loop {
+        let prompt = match current {
+            Some(value) => format!("{label} [{value}] (- to clear): "),
+            None => format!("{label} [{empty_label}] (- to clear): "),
+        };
+        let input = read_prompt_line(&prompt)?;
+        return Ok(choose_optional_text(&input, current));
+    }
+}
+
+fn prompt_with_default(label: &str, current: &str, display_override: Option<&str>) -> String {
+    let display_value = display_override.unwrap_or(current);
+    if display_value.is_empty() {
+        format!("{label}: ")
+    } else {
+        format!("{label} [{display_value}]: ")
+    }
+}
+
+fn read_prompt_line(prompt: &str) -> Result<String, String> {
+    print!("{prompt}");
+    io::stdout()
+        .flush()
+        .map_err(|error| format!("Failed to flush terminal output: {error}"))?;
+
+    let mut input = String::new();
+    let bytes = io::stdin()
+        .read_line(&mut input)
+        .map_err(|error| format!("Failed to read terminal input: {error}"))?;
+
+    if bytes == 0 {
+        return Err("Input stream closed before setup completed.".into());
+    }
+
+    Ok(input.trim().to_string())
+}
+
+fn choose_required_text(input: &str, current: &str) -> Result<String, String> {
+    let input = input.trim();
+    if !input.is_empty() {
+        return Ok(input.to_string());
+    }
+
+    let current = current.trim();
+    if !current.is_empty() {
+        Ok(current.to_string())
+    } else {
+        Err("This value is required.".into())
+    }
+}
+
+fn choose_port(input: &str, current: u16, label: &str) -> Result<u16, String> {
+    let input = input.trim();
+    if input.is_empty() {
+        return Ok(current);
+    }
+
+    match input.parse::<u16>() {
+        Ok(port) if port > 0 => Ok(port),
+        _ => Err(format!("{label} must be between 1 and 65535.")),
+    }
+}
+
+fn choose_optional_text(input: &str, current: Option<&str>) -> Option<String> {
+    let input = input.trim();
+    if input == "-" {
+        return None;
+    }
+    if !input.is_empty() {
+        return Some(input.to_string());
+    }
+
+    current.map(|value| value.to_string())
 }
 
 fn run_probe(command: BinaryCommand) -> Result<(), String> {
@@ -469,7 +626,10 @@ fn strip_ansi(value: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{apply_overrides, has_overrides, mask_token, strip_ansi, SettingsOverrides};
+    use super::{
+        apply_overrides, choose_optional_text, choose_port, choose_required_text, has_overrides,
+        mask_token, strip_ansi, SettingsOverrides,
+    };
     use flytunnel_lib::models::TunnelSettings;
 
     #[test]
@@ -526,5 +686,21 @@ mod tests {
             strip_ansi("\u{1b}[1;34mhello\u{1b}[0m world"),
             "hello world"
         );
+    }
+
+    #[test]
+    fn prompt_text_keeps_existing_value_on_blank_input() {
+        let resolved = choose_required_text("", "mc.example.com").expect("value should resolve");
+        assert_eq!(resolved, "mc.example.com");
+    }
+
+    #[test]
+    fn prompt_port_rejects_zero() {
+        assert!(choose_port("0", 25565, "local port").is_err());
+    }
+
+    #[test]
+    fn prompt_optional_text_clears_value_with_dash() {
+        assert_eq!(choose_optional_text("-", Some("C:/tools/frpc.exe")), None);
     }
 }
